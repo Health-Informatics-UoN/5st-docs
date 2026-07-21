@@ -1,1 +1,88 @@
-# Testing
+import { Cards } from "nextra/components";
+import {
+  Merge,
+  BookOpenIcon,
+  Unplug,
+  Share2,
+  Microscope,
+  Boxes,
+} from "lucide-react";
+import CustomCard from "@/components/custom-card";
+
+# Documentation
+
+<div className="grid grid-cols-3 gap-4 mt-5">
+  <CustomCard
+    title="Connect"
+    description="Learn about how TRE can operate with Five Safes TES"
+    links={[
+      { title: "Connecting a TRE – using GUI and inputting", href: "/link1" },
+      { title: "Approving projects and user", href: "/link2" },
+      { title: "Controlling TRE data access", href: "/link1" },
+      { title: "Checking and approving output", href: "/link2" },
+      {
+        title: "Setting up TRE components – deployment and configuration",
+        href: "/link1",
+      },
+      { title: "Securing deployment ", href: "/link1" },
+    ]}
+    CTA={{ text: "Connect >", href: "/cta" }}
+    icon={<Unplug size={24} />}
+  />
+  <CustomCard
+    title="Research"
+    description="Learn about what reseachers can do with Five Safes TES"
+    links={[
+      { title: "Submitting a project analysis", href: "/link1" },
+      { title: "Analysis Examples", href: "/link2" },
+    ]}
+    CTA={{ text: "Research >", href: "/cta" }}
+    icon={<Microscope size={24} />}
+  />
+  <CustomCard
+    title="Learn"
+    description="Understand the core concepts, standards, and users of Five Safes TES"
+    links={[
+      { title: "What is Fives Safes TES ", href: "/link1" },
+      { title: "OMOP", href: "/link2" },
+      { title: "Personas", href: "/link1" },
+      { title: "Context C4 Diagram", href: "/link2" },
+    ]}
+    CTA={{ text: "Learn >", href: "/cta" }}
+    icon={<BookOpenIcon size={24} />}
+  />
+  <CustomCard
+    title="Co-ordinate"
+    description="Manage a consortium of TREs to deliver federated research studies"
+    links={[
+      { title: "Managing TREs, projects and users", href: "/link1" },
+      { title: "Setting up a submission layer", href: "/link2" },
+    ]}
+    CTA={{ text: "Co-ordinate >", href: "/cta" }}
+    icon={<Share2 size={24} />}
+  />
+  <CustomCard
+    title="Contribute"
+    description="Learn about how to contribute to Five Safes TES"
+    links={[
+      { title: "Setting up a development environment", href: "/link1" },
+      { title: "C4 context diagram", href: "/link2" },
+      { title: "C4 components", href: "/link1" },
+      { title: "Contributing guide", href: "/link2" },
+    ]}
+    CTA={{ text: "Contribute >", href: "/cta" }}
+    icon={<Merge size={24} />}
+  />
+  <CustomCard
+    title="Integrate"
+    description="Get your innovative ideas into Five Safes TES"
+    links={[
+      { title: "C4 – Containers", href: "/link1" },
+      { title: "Set up test environment", href: "/link2" },
+      { title: "Explore and test in a local environment ", href: "/link1" },
+      { title: "API reference", href: "/link2" },
+    ]}
+    CTA={{ text: "Integrate >", href: "/cta" }}
+    icon={<Boxes size={24} />}
+  />
+</div>
