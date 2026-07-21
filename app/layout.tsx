@@ -40,7 +40,8 @@ export default async function RootLayout({
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
           footer={footer}
-        // ... Your additional layout options
+          editLink={false}
+          feedback={{ content: null }}
         >
           {children}
         </Layout>
