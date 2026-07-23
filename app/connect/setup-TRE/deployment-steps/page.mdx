@@ -1,0 +1,101 @@
+import { Steps, Tabs, Callout } from "nextra/components";
+
+# Deployment Steps
+
+<Steps>
+
+## Download the deployment files
+
+There are a few ways to download the deployment files.
+
+<Tabs items={["HTTPS Clone", "SSH Clone", "GitHub CLI", "Download Zip"]}>
+  <Tabs.Tab title="HTTPS Clone">
+    Clone using the web URL. 
+    
+    ```bash copy
+    git clone https://github.com/SwanseaUniversityMedical/5S-TES-deployment.git
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="SSH Clone">
+    Clone using a password-protected SSH key.
+    
+    ```bash copy
+    git clone git@github.com:SwanseaUniversityMedical/5S-TES-Deployment.git
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="GitHub CLI">
+    Clone using the GitHub CLI.
+    
+    ```bash copy
+    gh repo clone SwanseaUniversityMedical/5S-TES-Deployment
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="Download Zip">
+   - Download the repository as a zip file.
+    - Go to the [repository page](https://github.com/SwanseaUniversityMedical/5S-TES-Deployment) and click on the "Code" button.
+    - Then click on the "Download ZIP" button.
+    - Save the file to your local machine.
+    - Unzip the file.
+    - The repository will be in the `5S-TES-Deployment` directory.
+   
+   - Alternatively, run the command:
+    ```bash copy
+    curl -L -o 5S-TES-Deployment.zip https://github.com/SwanseaUniversityMedical/5S-TES-Deployment/archive/refs/heads/main.zip
+    ```
+    
+  </Tabs.Tab>
+</Tabs>
+
+
+### Prepare the necessary files
+
+To deploy a TRE Agent and Data Egress, we need the following files and directories in 5S-TES-deployment repository:
+
+- `DeploymentStack/TRE/docker-compose.yml`
+- `DeploymentStack/TRE/config/`
+- `ServiceStack/`
+- `.env`, which needs to be configured with the appropriate environment variables based on the `DeploymentStack/TRE/.env.example` file.
+
+The `docker-compose.yml` file in the `DeploymentStack/TRE/` directory includes the services for the TRE Agent and Data Egress using relative paths to the compose manifests in the `ServiceStack/` directory, where they are defined.
+
+If you need to modify the compose manifests or the `docker-compose.yml` file, we recommend to move these four components to a separate directory, e.g., `/srv/tre`, and update the relative paths in the `docker-compose.yml` and `CONFIG_PATH` in the `.env` file accordingly. 
+When in sync with the remote repository, the local 5S-TES-deployment repository will then only serve as a reference for your own deployment, rather than the source of truth.
+
+<Callout type="info">
+`CONFIG_PATH` is the relative path to the configuration files (which is under `config/` directory) from the `ServiceStack/` directory.
+For example, in your deployment, if you put the folder `config` next to the `ServiceStack/` directory, the `CONFIG_PATH` should be `./config`.
+</Callout>
+
+<Callout type="info">
+  If you would like to modify the services while keeping the original files structure, [Docker compose override](https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/) method is recommended.
+  For example, if you want to change the port of the TRE Agent UI to `8123`, you can create a `docker-compose.override.yml` file in the `DeploymentStack/TRE/` directory and add the following:
+  ```yaml
+  include:
+    - docker-compose.yml
+    
+  services:
+    tre-ui:
+      ports: !override
+        - "8123:8080"
+  ```
+  Then, run the command:
+  ```bash
+  docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
+  ```
+</Callout>
+
+
+
+
+### Step 1.2
+
+## Step 2
+
+### Step 2.1
+
+### Step 2.2
+
+</Steps>
