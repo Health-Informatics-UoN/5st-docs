@@ -1,0 +1,35 @@
+import { Callout } from 'nextra/components'
+
+export const metadata = {
+  title: 'Controlling TRE Data Access'
+}
+
+# Controlling TRE Data Access 
+
+Log in to the TRE Layer UI and navigate to the “DMN Rules” section. 
+This page helps to set the values which are used by the TES backend (e.g., Funnel) to connect to the TRE DB.
+
+Find the rules with the following tags and change them to match the values of the TRE DB credentials.
+
+| Output:tag        | Output:value                         |
+|-------------------|---------------------------------------|
+| postgresDatabase  | change to the `TREDBDatabase` above  |
+| postgresServer    | change to the `TREDBHost` above      |
+| postgresPort      | change to the `TREDBPort` above      |
+
+
+<Callout type="info">
+So far, 5S-TES works and has been tested on Postgres DB.
+
+**Note:** Camunda only supports:
+- PG
+- Trino (not tested yet)
+- S3 (don't know the state/progress)
+- Static creds (as long as the container reads/accepts the custom env vars)
+</Callout>
+
+
+### Notices
+
+- Any string value put into Output Value should be inside double quotes. For example: `schema: string(project)` or `"public"`. See [Camunda DMN rule convention](https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-expressions-introduction/) for more detail.
+- The value of `postgresSchema` defaults to the project name in the Submission Layer. If the OMOP CDM is under a different schema, change the value to the actual lowercase schema name in double quotes.
