@@ -1,4 +1,5 @@
 import { Callout } from 'nextra/components'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Controlling TRE Data Access'
@@ -8,6 +9,8 @@ export const metadata = {
 
 Log in to the TRE Layer UI and navigate to the “DMN Rules” section. 
 This page helps to set the values which are used by the TES backend (e.g., Funnel) to connect to the TRE DB.
+
+<Image src="/5st-docs/DMNRules.png" alt="DMN Rules screenshot" width={800} height={450} />
 
 Find the rules with the following tags and change them to match the values of the TRE DB credentials.
 
