@@ -353,9 +353,79 @@ Follow the guide below to re-generate the OpenID secrets for services to use.
 
 __3.7 Configure URLs__
 
+You can set the following URLs to the `hostname:port` address for testing, but we recommend setting up SSL certs and subdomains for the user accessible components, and then set these to the URLs with HTTPS protocol.
+A guide to set up SSL certs and subdomains is coming soon.
 
-__3.8 Configure TES Backend
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TRE_KEYCLOAK_URL`</Table.Td>
+      <Table.Td>
+        The URL of the TRE Layer’s Keycloak server, for example, https://tre-keycloak.net.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreApiPublicUrl`</Table.Td>
+      <Table.Td>
+        The public URL for the TRE Agent API. For example, http://my-TRE-host:8072.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3ConsoleUrl`</Table.Td>
+      <Table.Td>
+        Where the S3 TRE UI is hosted. For example, http://localhost:9003 or http://s3-tre-ui:9000.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the TRE UI’s Keycloak redirect URL. For example, http://host-of-tre:8989/.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EgressKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the Egress Layer’s Keycloak redirect URL. For example, https://localhost:8100/.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`KeycloakFullURL`</Table.Td>
+      <Table.Td>
+        The full hostname URL of the Keycloak server, for example,http://localhost:8085 or https://my-keycloak.net. Note: This is only used if you are using a local/internal Keycloak service defined in the `ServiceStack/compose-manifests/shared/auth.yml` file.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
 
+<Callout >
+  If you encounter the error “Invalid parameter: redirect_uri” from Keycloak when trying to login into TRE UI or Egress UI, please make sure the redirectURL environment variables in the .env file, the URL you put on the browser’s address bar, and the Valid redirect URIs registered in Keycloak’s client settings are the same. For more details, please refer to the troubleshooting guide.
+</Callout>
+
+__3.8 Configure TES Backend__
+
+To complete the setup, you need to put the URL for the TES backend in the `.env` file. If you have not set this up yet, follow this guide to [Setup a TES backend](/connect/setup-TES/backend) and configure it to use the TRE S3 storage of this deployment.
+
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TesAPIUrl`</Table.Td>
+      <Table.Td>Where TES backend is hosted. For example: http://my-tes-backend.com/tasks.</Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
 
 ## Run the Docker compose
 
