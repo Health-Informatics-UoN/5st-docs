@@ -1,4 +1,4 @@
-import { Steps, Tabs, Callout } from "nextra/components";
+import { Steps, Tabs, Callout, FileTree } from "nextra/components";
 
 # Deployment Steps
 
@@ -54,42 +54,66 @@ There are a few ways to download the deployment files.
 
 ### Prepare the necessary files
 
-To deploy a TRE Agent and Data Egress, we need the following files and directories in 5S-TES-deployment repository:
+If you would like to modify the services while keeping the original files structure (to make Git tracking easier, for example), you can follow the steps below.
+- Create a new `compose.yml` file next to `DeploymentStack` and `ServiceStack` directories.
 
-- `DeploymentStack/TRE/docker-compose.yml`
-- `DeploymentStack/TRE/config/`
-- `ServiceStack/`
-- `.env`, which needs to be configured with the appropriate environment variables based on the `DeploymentStack/TRE/.env.example` file.
+<FileTree>
+    <FileTree.File name="compose.yml" />
+    <FileTree.Folder name="DeploymentStack" />
+    <FileTree.Folder name="ServiceStack" />
+</FileTree>
+
+- Add the following content to the `compose.yml` file, to make the connection with the original TRE's docker-compose.yml file:
+
+```yaml copy
+include:
+    - DeploymentStack/TRE/docker-compose.yml
+```
+
+- Add the override settings to the `compose.yml` file if there are any. For example, if you want to change the port of the TRE Agent UI to `8123`, the content of `compose.yml` should be:
+
+```yaml copy
+include:
+    - DeploymentStack/TRE/docker-compose.yml
+
+services: 
+  tre-ui:
+    ports: !override # To override the port of the TRE Agent UI, to 8123 in this example
+      - 8123:8080
+```
+
+
+If you would like to change the directory structure (e.g., to have your own way of managing the files), there are some notes below.
+- We recommend to move the following files and directories to a separate directory, e.g., `/srv/tre`:
+
+    - `DeploymentStack/TRE/docker-compose.yml`
+    - `DeploymentStack/TRE/config/`
+    - `ServiceStack/`
 
 The `docker-compose.yml` file in the `DeploymentStack/TRE/` directory includes the services for the TRE Agent and Data Egress using relative paths to the compose manifests in the `ServiceStack/` directory, where they are defined.
-
-If you need to modify the compose manifests or the `docker-compose.yml` file, we recommend to move these four components to a separate directory, e.g., `/srv/tre`, and update the relative paths in the `docker-compose.yml` and `CONFIG_PATH` in the `.env` file accordingly. 
-When in sync with the remote repository, the local 5S-TES-deployment repository will then only serve as a reference for your own deployment, rather than the source of truth.
+The services inside the `ServiceStack/` directory are using the configuration files in the `config/` directory via `CONFIG_PATH` environment variable.
 
 <Callout type="info">
-`CONFIG_PATH` is the relative path to the configuration files (which is under `config/` directory) from the `ServiceStack/` directory.
-For example, in your deployment, if you put the folder `config` next to the `ServiceStack/` directory, the `CONFIG_PATH` should be `./config`.
+`CONFIG_PATH` is the relative path from the services (yaml files) inside the `ServiceStack/` directory to the configuration files (which is under `config/` directory).
+For example, the `CONFIG_PATH` for the scenario below is `../../../config` because `platform.yml` is nested 3 levels deep from the `ServiceStack/` directory compared to the `config/` directory.
+
+<FileTree>
+    <FileTree.File name="docker-compose.yml" />
+    <FileTree.Folder name="ServiceStack" >
+        <FileTree.Folder name="compose-manifests" >
+            <FileTree.Folder name="application" >
+                <FileTree.File name="platform.yml" />
+            </FileTree.Folder>
+        </FileTree.Folder>
+    </FileTree.Folder>
+    <FileTree.Folder name="config">
+        <FileTree.File name="config.json" />
+    </FileTree.Folder>
+</FileTree>
+
 </Callout>
 
-<Callout type="info">
-  If you would like to modify the services while keeping the original files structure, [Docker compose override](https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/) method is recommended.
-  For example, if you want to change the port of the TRE Agent UI to `8123`, you can create a `docker-compose.override.yml` file in the `DeploymentStack/TRE/` directory and add the following:
-  ```yaml
-  include:
-    - docker-compose.yml
-
-  services:
-    tre-ui:
-      ports: !override
-        - "8123:8080"
-  ```
-  Then, run the command:
-  ```bash
-  docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
-  ```
-</Callout>
-
-
+- Since the directory structure is changed, you need to update the relative paths in the `docker-compose.yml` and `CONFIG_PATH` in the `.env` file accordingly. 
 
 
 ### Step 1.2
