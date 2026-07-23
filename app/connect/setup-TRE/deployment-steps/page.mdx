@@ -103,14 +103,14 @@ For example, the `CONFIG_PATH` for the scenario below is `../../../config` becau
 
 <FileTree>
     <FileTree.File name="docker-compose.yml" />
-    <FileTree.Folder name="ServiceStack" >
-        <FileTree.Folder name="compose-manifests" >
-            <FileTree.Folder name="application" >
+    <FileTree.Folder name="ServiceStack" defaultOpen={true} >
+        <FileTree.Folder name="compose-manifests" defaultOpen={true} >
+            <FileTree.Folder name="application" defaultOpen={true} >
                 <FileTree.File name="platform.yml" />
             </FileTree.Folder>
         </FileTree.Folder>
     </FileTree.Folder>
-    <FileTree.Folder name="config">
+    <FileTree.Folder name="config" defaultOpen={true} >
         <FileTree.File name="config.json" />
     </FileTree.Folder>
 </FileTree>
