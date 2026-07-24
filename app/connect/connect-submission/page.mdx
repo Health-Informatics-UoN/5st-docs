@@ -9,9 +9,11 @@ import { DocMetadata } from "@/components/doc-metadata/DocMetadata";
 <DocMetadata />
 
 # Connect a TRE Agent to a Submission Layer
+
 This guide describes how to connect a TRE Agent to the Submission Layer using the **TRE onboarding configuration**. During onboarding, the Submission Layer automatically provisions a dedicated Keycloak service account for the TRE and generates a configuration file that the TRE Agent can import.
 
 ## Prerequisites
+
 - Deploy at least one TRE Agent.
 - Connect the TRE Agent to TES backend.
 - Get TRE administrator login credentials from the Submission Layer administrator to sign in to the Submission Layer.
@@ -24,13 +26,13 @@ This guide describes how to connect a TRE Agent to the Submission Layer using th
 #### Set the following configuration values in the TRE .env file :
 
 <Table>
-<thead>
+  <thead>
     <Table.Tr>
       <Table.Th>Environment Variable</Table.Th>
       <Table.Th>Description</Table.Th>
     </Table.Tr>
-</thead>
-<tbody>
+  </thead>
+  <tbody>
     <Table.Tr>
       <Table.Td>`SubmissionS3RootUser`</Table.Td>
       <Table.Td>The root user for the Submission Layer S3 server.</Table.Td>
@@ -53,11 +55,14 @@ This guide describes how to connect a TRE Agent to the Submission Layer using th
         `http://host-of-submission-layer:9001`.
       </Table.Td>
     </Table.Tr>
-    </tbody>
+  </tbody>
 </Table>
 
 <Callout type="info">
-Once a TES submission has finished executing and the outputs have been approved by an Output checker the TRE Agent uses these configuration details to connect to the Submission S3 and copy over the outputs for the Researcher to access.
+  Once a TES submission has finished executing and the outputs have been
+  approved by an Output checker the TRE Agent uses these configuration details
+  to connect to the Submission S3 and copy over the outputs for the Researcher
+  to access.
 </Callout>
 
 </Steps>
@@ -109,7 +114,11 @@ If the button in the top-right corner of the Deployment Admin page displays `Ena
 </Steps>
 
 <Callout type="info">
-The **Submission Credentials** page is still available as an alternative onboarding method. When credentials are entered manually, the TRE Agent authenticates using a Keycloak username and password instead of a generated service account. JSON-based onboarding is the recommended approach for new deployments.
+  The **Submission Credentials** page is still available as an alternative
+  onboarding method. When credentials are entered manually, the TRE Agent
+  authenticates using a Keycloak username and password instead of a generated
+  service account. JSON-based onboarding is the recommended approach for new
+  deployments.
 </Callout>
 
 ## Synchronisation
@@ -121,13 +130,13 @@ To change the synchronisation interval, a TRE Operator can update the `syncSched
 ## Health Checks
 
 The TRE Agent performs health checks at a regular interval to verify that its connection to the Submission Layer and supporting services remains healthy.
-To change the health check interval, a TRE Operator can update the `healthCheckSchedule` setting in the TRE Agent configuration. 
+To change the health check interval, a TRE Operator can update the `healthCheckSchedule` setting in the TRE Agent configuration.
 
 #### During each health check, the TRE Agent verifies that:
 
-* The Submission Layer endpoint is reachable.
-* The Egress endpoint is valid and reachable.
-* The configured TES endpoint is valid and reachable.
+- The Submission Layer endpoint is reachable.
+- The Egress endpoint is valid and reachable.
+- The configured TES endpoint is valid and reachable.
 
 If any of these checks fail, the TRE Agent automatically stops the **Sync** and **Scan** jobs to prevent synchronisation attempts with an invalid configuration.
 
@@ -136,5 +145,6 @@ The current health status is displayed in the **Deployment Admin** page under th
 Once any configuration or connectivity issues have been resolved, the Synchronisation can be restarted from the **Deployment Admin** page by selecting **Enable Sync**.
 
 ### What’s next? :
+
 - Approving Projects/Memberships
 - Checking and approving outputs
