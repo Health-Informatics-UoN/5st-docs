@@ -1,0 +1,445 @@
+---
+readingTime: PT45M
+---
+
+import { Steps, Tabs, Callout, FileTree, Table } from "nextra/components";
+import { DocMetadata } from "@/components/doc-metadata/DocMetadata"
+
+<DocMetadata/>
+
+# Deployment Steps
+
+<Steps>
+
+## Download the deployment files
+
+There are a few ways to download the deployment files.
+
+<Tabs items={["HTTPS Clone", "SSH Clone", "GitHub CLI", "Download Zip"]}>
+  <Tabs.Tab title="HTTPS Clone">
+    Clone using the web URL. 
+    
+    ```bash copy
+    git clone https://github.com/SwanseaUniversityMedical/5S-TES-deployment.git
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="SSH Clone">
+    Clone using a password-protected SSH key.
+    
+    ```bash copy
+    git clone git@github.com:SwanseaUniversityMedical/5S-TES-Deployment.git
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="GitHub CLI">
+    Clone using the GitHub CLI.
+    
+    ```bash copy
+    gh repo clone SwanseaUniversityMedical/5S-TES-Deployment
+    ```
+    
+  </Tabs.Tab>
+  <Tabs.Tab title="Download Zip">
+   - Download the repository as a zip file.
+    - Go to the [repository page](https://github.com/SwanseaUniversityMedical/5S-TES-Deployment) and click on the "Code" button.
+    - Then click on the "Download ZIP" button.
+    - Save the file to your local machine.
+    - Unzip the file.
+    - The repository will be in the `5S-TES-Deployment` directory.
+   
+   - Alternatively, run the command:
+    ```bash copy
+    curl -L -o 5S-TES-Deployment.zip https://github.com/SwanseaUniversityMedical/5S-TES-Deployment/archive/refs/heads/main.zip
+    ```
+    
+  </Tabs.Tab>
+</Tabs>
+
+![Get deployment files](/get-deployment-files.png)
+
+
+## Prepare the necessary files
+
+If you would like to modify the services while keeping the original files structure (to make Git tracking easier, for example), you can follow the steps below.
+- Create a new `compose.yml` file next to `DeploymentStack` and `ServiceStack` directories.
+
+<FileTree>
+    <FileTree.File name="compose.yml" />
+    <FileTree.Folder name="DeploymentStack" />
+    <FileTree.Folder name="ServiceStack" />
+</FileTree>
+
+- Add the following content to the `compose.yml` file, to make the connection with the original TRE's docker-compose.yml file:
+
+```yaml copy
+include:
+    - DeploymentStack/TRE/docker-compose.yml
+```
+
+- Add the override settings to the `compose.yml` file if there are any. For example, if you want to change the port of the TRE Agent UI to `8123`, the content of `compose.yml` should be:
+
+```yaml copy
+include:
+    - DeploymentStack/TRE/docker-compose.yml
+
+services: 
+  tre-ui:
+    ports: !override # To override the port of the TRE Agent UI, to 8123 in this example
+      - 8123:8080
+```
+
+
+If you would like to change the directory structure (e.g., to have your own way of managing the files), there are some notes below.
+- We recommend to move the following files and directories to a separate directory, e.g., `/srv/tre`:
+
+    - `DeploymentStack/TRE/docker-compose.yml`
+    - `DeploymentStack/TRE/config/`
+    - `ServiceStack/`
+
+The `docker-compose.yml` file in the `DeploymentStack/TRE/` directory includes the services for the TRE Agent and Data Egress using relative paths to the compose manifests in the `ServiceStack/` directory, where they are defined.
+The services inside the `ServiceStack/` directory are using the configuration files in the `config/` directory via `CONFIG_PATH` environment variable.
+
+<Callout type="info">
+`CONFIG_PATH` is the relative path from the services (yaml files) inside the `ServiceStack/` directory to the configuration files (which is under `config/` directory).
+For example, the `CONFIG_PATH` for the scenario below is `../../../config` because `platform.yml` is nested 3 levels deep from the `ServiceStack/` directory compared to the `config/` directory.
+
+<FileTree>
+    <FileTree.File name="docker-compose.yml" />
+    <FileTree.Folder name="ServiceStack" defaultOpen={true} >
+        <FileTree.Folder name="compose-manifests" defaultOpen={true} >
+            <FileTree.Folder name="application" defaultOpen={true} >
+                <FileTree.File name="platform.yml" />
+            </FileTree.Folder>
+        </FileTree.Folder>
+    </FileTree.Folder>
+    <FileTree.Folder name="config" defaultOpen={true} >
+        <FileTree.File name="config.json" />
+    </FileTree.Folder>
+</FileTree>
+
+</Callout>
+
+- Since the directory structure is changed, you need to update the relative paths in the `docker-compose.yml` and `CONFIG_PATH` in the `.env` file accordingly. 
+
+
+## Configure the stack
+
+__3.1 Create a new .env file__
+
+Create a new `.env` file next to the `compose.yml` or the `docker-compose.yml` file.
+This can be based on the `DeploymentStack/TRE/.env.example` file in the repository.
+
+
+__3.2 Configure general app settings__
+
+Modify these environment variables in the `.env` file:
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TreName`</Table.Td>
+      <Table.Td>The name identifier for this TRE instance.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EncryptionSettingsKey`</Table.Td>
+      <Table.Td>
+        The encryption settings (in 16 bytes Base64 String format) for the TRE Agent. They must be set and can be generated using the `openssl` command: `openssl rand -base64 16` (MacOS/Linux) or 
+        `$key = New-Object byte[] 16;[System.Security.Cryptography.RandomNumberGenerator]::Fill($key);[Convert]::ToBase64String($key)` (Windows).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        `TRE_DATA_SERVER` `TRE_DATA_PORT` `TRE_DATA_DATABASE` `TRE_DATA_USER`
+        `TRE_DATA_PASSWORD`
+      </Table.Td>
+      <Table.Td>
+        The credentials for the PostgreSQL database used to hold the TRE data,
+        e.g., OMOP CDM data. Camunda will use these credentials to create the
+        ephemeral user accounts for the TES executing agent (e.g., Funnel) to
+        access the TRE data.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+
+__3.3 Set up Vault for secret management__
+
+You need to setup Vault and generate a root token. Run the following commands one by one in the terminal to setup Vault using Docker interaction mode:
+
+```bash
+     docker compose up -d vault   # start only the Vault server
+     docker exec -it vault vault operator init -key-shares=1 -key-threshold=1  # this generates and shows on the console the unseal key and the initial root token
+     docker exec -it vault vault operator unseal <UNSEAL_KEY>  # unseal the vault
+     docker exec -it vault vault login <INITIAL_ROOT_TOKEN> # login to the vault
+     docker exec -it vault vault secrets enable -path=secret kv-v2 # enable the secret engine
+```
+
+Copy the generated root token and paste it into the `VaultRootToken` environment variable of the `.env` file. Also, __save the unseal key__ in a safe place to unseal the vault in the production mode.
+
+<Callout type="info">
+  After you restart the services using `docker compose up -d`, you may see the `vault` service keeps waiting. This is because the vault is not unsealed. 
+  To unseal the vault: On another terminal, run the following command: `docker exec -it vault vault operator unseal <UNSEAL_KEY>`.
+  After a few seconds, the `vault` service should start and other services will start as well.
+</Callout>
+
+
+__3.4 Change passwords for the services__
+
+You are highly recommended to change the passwords for the services by the environment variables in the `.env` file.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`PGLOGIN` and `PGPASSWORD`</Table.Td>
+      <Table.Td>
+        The admin credentials for the PostgreSQL database used by the TRE Agent. These are recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`LDAPAdminPassword` and `LDAPConfigPassword`</Table.Td>
+      <Table.Td>
+        The credentials for the OpenLDAP server used by the TRE Agent. These are recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`CamundaUsername` and `CamundaPassword`</Table.Td>
+      <Table.Td>
+        The credentials for the Camunda server used by the TRE Agent. These are recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EnableExternalHangfire`, `HangfireUser`, `HangfirePassword` </Table.Td>
+      <Table.Td>
+        Configure Hangfire with `EnableExternalHangfire` (default is true) & set the login credentials.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`RabbitMQDefaultPassword`</Table.Td>
+      <Table.Td>
+        The default password for the RabbitMQ server used by the TRE Agent. Change this from the default value in production. 
+        Default RabbitMQ username is set to `rabbitmq` and default RabbitMQ host is set to `rabbitmq`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3RootUser`</Table.Td>
+      <Table.Td>The admin user for the TRE S3 server.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3RootPass`</Table.Td>
+      <Table.Td>The admin password for the TRE S3 server.</Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+__3.5 Configure KeyCloak__
+
+Depending on where and how you want to deploy KeyCloak, the configuration is different.
+
+<Tabs items={["Built-in KeyCloak", "Remote self-hosted KeyCloak"]}>
+  <Tabs.Tab title="Built-in KeyCloak">
+  `Built-in KeyCloak` means the KeyCloak service defined in the `ServiceStack/compose-manifests/shared/auth.yml` directory, and this ervice will be deployed together with the TRE services if you use the default configuration.
+
+  If so, you need to configure the KeyCloak server by the following environment variables in the `.env` file.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`KeycloakBootstrapAdminPassword`</Table.Td>
+      <Table.Td>
+        The bootstrap admin password for the Keycloak server used by the TRE Agent. This is used to bootstrap the Keycloak server with the admin user.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`KeycloakStartupCommand`</Table.Td>
+      <Table.Td>
+        The command to start the Keycloak server. In dev mode (or Demostack), this is `start-dev`.
+        In production, if you have HTTPS configured for Keycloak, this should be set to `start`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`KeycloakFullURL`</Table.Td>
+      <Table.Td>
+        The full hostname URL of the Keycloak server, for example,`http://localhost:8085` or `https://my-keycloak.net`. 
+        This is only used if you are using a local/internal Keycloak service defined in the `ServiceStack/compose-manifests/shared/auth.yml` file.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+After that, you need to start up KeyCloak server by running the following command. Necessary realms and clients configurations will be imported automatically on startup.
+
+```bash
+docker compose up -d keycloak
+```
+
+<Callout type="info">
+  To access Keycloak you need to access it via the hostname of your VM and the port. You can customise these by changing the above config and refer to the default values in the TRE Components section.
+</Callout>
+
+  </Tabs.Tab>
+  <Tabs.Tab title="Remote self-hosted KeyCloak">
+    If you already have a KeyCloak server running remotely, TRE can still use this. However, it's recommended to import the realms and clients configurations from the `DeploymentStack/TRE/config/realm-config/` directory.
+    To import the realms and clients configurations, you can follow the steps below:
+    - In Keycloak Admin Console, go to the `Manage Realms` section.
+    - Click on the `Create Realm` button.
+    - Import the `tre-layer.json` from the `DeploymentStack/TRE/config/realm-config/` directory as `Resource File`.
+    - Input the Realm name as `Dare-TRE`.
+    - Keep the `Enabled` checkbox checked.
+    - Click on the `Create` button.
+    - Repeat the same process for the `egress-layer.json` file to create the `Data-Egress` realm.
+
+
+The last step is using the URL of your KeyCloak server in the `.env` file as `TRE_KEYCLOAK_URL`.
+
+  </Tabs.Tab>
+</Tabs>
+
+
+__3.6 Configure OpenID secrets__
+
+Follow the guide below to re-generate the OpenID secrets for services to use.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TRES3OpenidSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the S3 client of Dare-TRE realm. There is a default value in the realm configuration, but you should regenerate it for production deployments. Do this by navigating to Dare-TRE realm -> Clients -> Dare-TRE-S3 -> Credentials. Then click Regenerate and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the TRE UI Keycloak client Dare-TRE-UI. Find and regenerate this secret by navigating to Dare-TRE realm -> Clients -> Dare-TRE-UI -> Credentials. Then click Regenerate and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreAPIKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the TRE API Keycloak client Dare-TRE-API. Find and regenerate this secret by navigating to Dare-TRE realm -> Clients -> Dare-TRE-API -> Credentials. Then click Regenerate and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EgressKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the Egress Keycloak client Data-Egress-API. Find and regenerate this secret by navigating to Data-Egress realm -> Clients -> Data-Egress-API -> Credentials. Then click Regenerate and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+__3.7 Configure URLs__
+
+You can set the following URLs to the `hostname:port` address for testing, but we recommend setting up SSL certs and subdomains for the user accessible components, and then set these to the URLs with HTTPS protocol.
+A guide to set up SSL certs and subdomains is coming soon.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TRE_KEYCLOAK_URL`</Table.Td>
+      <Table.Td>
+        The URL of the TRE Layer’s Keycloak server, for example, https://tre-keycloak.net.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreApiPublicUrl`</Table.Td>
+      <Table.Td>
+        The public URL for the TRE Agent API. For example, http://my-TRE-host:8072.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3ConsoleUrl`</Table.Td>
+      <Table.Td>
+        Where the S3 TRE UI is hosted. For example, http://localhost:9003 or http://s3-tre-ui:9000.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the TRE UI’s Keycloak redirect URL. For example, http://host-of-tre:8989/.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EgressKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the Egress Layer’s Keycloak redirect URL. For example, https://localhost:8100/.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`KeycloakFullURL`</Table.Td>
+      <Table.Td>
+        The full hostname URL of the Keycloak server, for example,http://localhost:8085 or https://my-keycloak.net. Note: This is only used if you are using a local/internal Keycloak service defined in the `ServiceStack/compose-manifests/shared/auth.yml` file.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+<Callout >
+  If you encounter the error “Invalid parameter: redirect_uri” from Keycloak when trying to login into TRE UI or Egress UI, please make sure the redirectURL environment variables in the .env file, the URL you put on the browser’s address bar, and the Valid redirect URIs registered in Keycloak’s client settings are the same. For more details, please refer to the troubleshooting guide.
+</Callout>
+
+__3.8 Configure TES Backend__
+
+To complete the setup, you need to put the URL for the TES backend in the `.env` file. If you have not set this up yet, follow this guide to [Setup a TES backend](/connect/setup-TES/backend) and configure it to use the TRE S3 storage of this deployment.
+
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TesAPIUrl`</Table.Td>
+      <Table.Td>Where TES backend is hosted. For example: http://my-tes-backend.com/tasks.</Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+## Run the Docker compose
+
+At the directory where `docker-compose.yml` or `compose.yml` and `.env` files are located, run the following command to start the TRE Agent and Data Egress:
+
+```bash
+docker compose up -d
+```
+
+</Steps>
+
+## What's next?
+
+- Connect TRE to Data Egress
