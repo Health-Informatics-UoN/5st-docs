@@ -1,18 +1,22 @@
-import { Callout } from 'nextra/components'
-import Image from 'next/image'
+---
+readingTime: PT10M
+audience: TRE operator
+prerequisites:
+  - TRE agent deployed
+  - Access to the TRE UI
+  - TRE admin credentials
+  - TRE data source connection details
+  - Knowledge of how the TRE grants access to its DB
+---
 
-export const metadata = {
-  title: 'Controlling TRE Data Access'
-}
+import { Callout } from 'nextra/components'
 
 # Controlling TRE Data Access 
 
 Log in to the TRE Layer UI and navigate to the “DMN Rules” section. 
 This page helps to set the values which are used by the TES backend (e.g., Funnel) to connect to the TRE DB.
 
-<div className="mt-6">
-  <Image src="/5st-docs/DMNRules.png" alt="DMN Rules screenshot" width={800} height={450} />
-</div>
+![DMN Rules screenshot](/DMNRules.png)
 
 Find the rules with the following tags and change them to match the values of the TRE DB credentials.
 
@@ -27,7 +31,7 @@ Find the rules with the following tags and change them to match the values of th
 So far, 5S-TES works and has been tested on Postgres DB.
 
 **Note:** Camunda only supports:
-- Postgres
+- Postgres 
 - Trino (not yet tested)
 - S3 (work in progress)
 - Static credentials (as long as the container is able to accept the custom env variables)
@@ -36,5 +40,5 @@ So far, 5S-TES works and has been tested on Postgres DB.
 
 ### Notices
 
-- Any string value put into an output value should be inside double quotes. For example: `schema: string(project)` or `"public"`. See [Camunda DMN rule convention](https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-expressions-introduction/) for more details.
+- Any string value put into an output value should be inside double quotes. For example: `"public"`. If the output values refer to input variables, double quotes are not required, for example, `string(project)`. See [Camunda DMN rule convention](https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-expressions-introduction/) for more details.
 - The value of `postgresSchema` defaults to the project name in the Submission Layer. If the OMOP CDM is under a different schema, change the value to the actual lowercase schema name in double quotes.
