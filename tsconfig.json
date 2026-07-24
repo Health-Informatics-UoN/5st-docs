@@ -32,7 +32,7 @@
     "app/page.mdx",
     "out/types/**/*.ts",
     "out/dev/types/**/*.ts",
-    "app/connect/setup-TRE/deployment-steps/page.mdx"
+    "app/**/*.mdx"
   ],
   "exclude": ["node_modules"]
 }
