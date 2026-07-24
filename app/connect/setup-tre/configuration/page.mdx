@@ -1,0 +1,415 @@
+import { Table } from "nextra/components";
+
+# Configuration Reference
+
+This page provides a reference for the environment variables that are used to configure the TRE Agent and its dependencies.
+
+### General App Configuration
+
+This section contains the environment variables that are used to configure the general app.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`DEPLOYMENT_VERSION`</Table.Td>
+      <Table.Td>
+        The version of the TRE Agent app you are deploying. Find the version
+        [here](https://github.com/SwanseaUniversityMedical/5s-Tes/releases),
+        between `v` and `-5S-TES-containers`. For example, `1.5.1` is the version for
+        the release `v1.5.1-5S-TES-containers`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`AppName`</Table.Td>
+      <Table.Td>
+        Name of the application shown on the Navigation bar of TRE Agent UI. Default is `Five Safes TES`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`PGLOGIN` and `PGPASSWORD`</Table.Td>
+      <Table.Td>
+        The admin credentials for the PostgreSQL database used by the TRE Agent. These are recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EncryptionSettingsKey`</Table.Td>
+      <Table.Td>
+        The encryption settings (in 16 bytes Base64 String format) for the TRE Agent. They must be set and can be generated using the `openssl` command: `openssl rand -base64 16` (MacOS/Linux) or 
+        `$key = New-Object byte[] 16;[System.Security.Cryptography.RandomNumberGenerator]::Fill($key);[Convert]::ToBase64String($key)` (Windows).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>
+        `TRE_DATA_SERVER` `TRE_DATA_PORT` `TRE_DATA_DATABASE` `TRE_DATA_USER`
+        `TRE_DATA_PASSWORD`
+      </Table.Td>
+      <Table.Td>
+        The credentials for the PostgreSQL database used to hold the TRE data,
+        e.g., OMOP CDM data. Camunda will use these credentials to create the
+        ephemeral user accounts for the TES executing agent (e.g., Funnel) to
+        access the TRE data.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreName`</Table.Td>
+      <Table.Td>The name identifier for this TRE instance.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRE_KEYCLOAK_URL`</Table.Td>
+      <Table.Td>
+        The URL of the TRE Layer's Keycloak server, for example,
+        `http://keycloak:8080` (for default local Keycloak server) or `https://tre-keycloak.net` (for a remote Keycloak server).
+      </Table.Td>
+    </Table.Tr>
+    
+    <Table.Tr>
+      <Table.Td>`TesAPIUrl`</Table.Td>
+      <Table.Td>
+        Where TESK or Funnel API is hosted. For example,
+        `http://host.docker.internal:8000/v1/tasks` (when Funnel is hosted
+        locally) or `http://my-funnel.com/tasks`. This can be filled in with the URL of the TES executing agent (e.g., Funnel) after step 8 of this guide.
+      </Table.Td>
+    </Table.Tr>
+    
+    <Table.Tr>
+      <Table.Td>`TreApiPublicUrl`</Table.Td>
+      <Table.Td>
+        The public URL for the TRE Agent API. For example,
+        `http://my-TRE-host:8072`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`healthCheckSchedule`</Table.Td>
+      <Table.Td>
+        The interval, in minutes, at which the TRE health check runs. Default is
+        `10` minutes.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`daysBeforeHealthLogDeletion`</Table.Td>
+      <Table.Td>
+        The number of days to retain health check logs before they are
+        automatically deleted. Default is `30`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`CONFIG_PATH`</Table.Td>
+      <Table.Td>
+        The path for the to the shared configuration files (e.g., realm config,
+        ldap, vault, init scripts) for the TRE Layer. Default is
+        `../../../DeploymentStack/TRE/config`. 
+        Change this if you are using a different path for the configuration files in your own deployment.
+      </Table.Td>
+    </Table.Tr>
+
+  </tbody>
+</Table>
+
+### LDAP, Vault, Camunda, RabbitMQ, Serilog Configuration
+
+This section contains the environment variables that are used to configure the LDAP, Vault, Camunda, RabbitMQ, and Serilog services.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`LDAPAdminPassword` and `LDAPConfigPassword`</Table.Td>
+      <Table.Td>
+        The credentials for the OpenLDAP server used by the TRE Agent. These are
+        recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`CamundaUsername` and `CamundaPassword`</Table.Td>
+      <Table.Td>
+        The credentials for the Camunda server used by the TRE Agent. These are
+        recommended to be changed from the default values.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`VaultStartupCommand`</Table.Td>
+      <Table.Td>
+        The command to start the Vault server. This is used to store and
+        retrieve the ephemeral user credentials for the credential management
+        process. In production, this should be set to `vault server
+        -config=/vault/config/config.json` to start the Vault server in the
+        production mode. Setting up Vault server in production mode is required
+        a few more steps detailed
+        [here](/five_safes_tes/reference_implementation/core_components#vault).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`VaultRootToken`</Table.Td>
+      <Table.Td>
+        In dev mode (or Demostack), this is pre-filled with a default value. In
+        production, to generate a new root token, do the steps detailed
+        [here](/five_safes_tes/reference_implementation/core_components#vault).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`RabbitMQDefaultPassword`</Table.Td>
+      <Table.Td>
+        The default password for the RabbitMQ server used by the TRE Agent.
+        Change this from the default value in production. Default RabbitMQ
+        username is set to `rabbitmq` and default RabbitMQ host is set to
+        `rabbitmq`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SerilogLevel`</Table.Td>
+      <Table.Td>
+        The Serilog logging level for the TRE Agent. Default is `Information`.
+        Change this depending on the logging level you want to set for the TRE
+        Agent. More details
+        [here](https://github.com/serilog/serilog/wiki/Configuration-Basics#minimum-level).
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+### S3 configuration
+
+This section contains the environment variables that are used to configure the S3 service.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TRES3ConsoleUrl`</Table.Td>
+      <Table.Td>
+        Where the S3 TRE UI is hosted. For example,
+        `http://localhost:9003` or `http://s3-tre-ui:9000`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3OpenidSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the S3 client of Dare-TRE realm. There is a
+        default value in the realm configuration, but you should regenerate it
+        for production deployments. Do this by navigating to `Dare-TRE` realm ->
+        `Clients` -> `Dare-TRE-S3` -> `Credentials`. Then click `Regenerate`
+        and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3RootUser`</Table.Td>
+      <Table.Td>The admin user for the TRE S3 server.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TRES3RootPass`</Table.Td>
+      <Table.Td>The admin password for the TRE S3 server.</Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+### Submission Layer Connection configuration
+
+This section contains the environment variables that are used to configure the connection to the Submission Layer.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`syncSchedule`</Table.Td>
+      <Table.Td>
+        Sync Projects & Users between TRE & Submission Layer - default every 10
+        minutes (in minutes).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`scanSchedule`</Table.Td>
+      <Table.Td>
+        Scan Submission Layer for available submissions - default every 1 minute
+        (in minutes).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionS3RootUser`</Table.Td>
+      <Table.Td>The root user for the Submission Layer S3 server.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionS3RootPass`</Table.Td>
+      <Table.Td>The root password for the Submission Layer S3 server.</Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionS3ApiUrl`</Table.Td>
+      <Table.Td>
+        Point to Submission Layer S3 server, used by TRE Agent. For example,
+        `http://host-of-submission-layer:9000`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionS3ConsoleUrl`</Table.Td>
+      <Table.Td>
+        The URL for the Submission Layer's S3 admin console. For example,
+        `http://host-of-submission-layer:9001`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SUBMISSION_KEYCLOAK_URL`</Table.Td>
+      <Table.Td>
+        The URL of the Submission Layer's Keycloak server, for example,
+        `http://keycloak:8080` (for default local Keycloak server) or
+        `https://submission-keycloak.net` (for a production Submission Layer
+        Keycloak server).
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionAPIAddressURL`</Table.Td>
+      <Table.Td>
+        The Submission API address URL. For example,
+        `http://host-of-submission-layer:5034`.
+      </Table.Td>
+    </Table.Tr>
+  </tbody>
+</Table>
+
+### OpenID Configuration
+
+This section contains the environment variables that are used to configure the OpenID configuration.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`TRES3OpenidSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the S3 client of Dare-TRE realm. There is a
+        default value in the realm configuration, but you should regenerate it
+        for production deployments. Do this by navigating to `Dare-TRE` realm ->
+        `Clients` -> `Dare-TRE-S3` -> `Credentials`. Then click `Regenerate`
+        and copy the new value into this environment variable.
+    </Table.Td>
+    </Table.Tr>
+      <Table.Tr>
+      <Table.Td>`EgressKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the Egress Layer's Keycloak redirect URL. For example,
+        `https://localhost:8100/`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`EgressKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the Egress Keycloak client `Data-Egress-API`. Find
+        and regenerate this secret by navigating to `Data-Egress` realm ->
+        `Clients` -> `Data-Egress-API` -> `Credentials`. Then click `Regenerate`
+        and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionAPIKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the Submission API's Keycloak redirect URL. For example,
+        `http://host-of-submission-layer:8989/`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`SubmissionAPIKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the Submission API Keycloak client
+        `Dare-Control-API`. Find and regenerate this secret by navigating to
+        `Dare-Control` realm -> `Clients` -> `Dare-Control-API` ->
+        `Credentials`. Then click `Regenerate` and copy the new value into this
+        environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the TRE UI's Keycloak redirect URL. For example,
+        `http://host-of-tre:8989/`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the TRE UI Keycloak client `Dare-TRE-UI`. Find and
+        regenerate this secret by navigating to `Dare-TRE` realm -> `Clients` ->
+        `Dare-TRE-UI` -> `Credentials`. Then click `Regenerate` and copy the new
+        value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreAPIKeyCloakClientUIRedirectURL`</Table.Td>
+      <Table.Td>
+        The URL for the TRE API's Keycloak redirect URL. For example,
+        `http://localhost:8989/`.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`TreAPIKeyCloakSecret`</Table.Td>
+      <Table.Td>
+        The OpenID secret for the TRE API Keycloak client `Dare-TRE-API`. Find
+        and regenerate this secret by navigating to `Dare-TRE` realm ->
+        `Clients` -> `Dare-TRE-API` -> `Credentials`. Then click `Regenerate`
+        and copy the new value into this environment variable.
+      </Table.Td>
+    </Table.Tr>
+    </tbody>
+</Table>
+
+### Built-in KeyCloak Configuration
+
+This section contains the environment variables that are used to configure the built-in Keycloak server.
+
+<Table>
+  <thead>
+    <Table.Tr>
+      <Table.Th>Environment Variable</Table.Th>
+      <Table.Th>Description</Table.Th>
+    </Table.Tr>
+  </thead>
+  <tbody>
+    <Table.Tr>
+      <Table.Td>`KeycloakBootstrapAdminPassword`</Table.Td>
+      <Table.Td>
+        The bootstrap admin password for the Keycloak server used by the TRE Agent. This is used to bootstrap the Keycloak server with the admin user.
+      </Table.Td>
+    </Table.Tr>
+    <Table.Tr>
+      <Table.Td>`KeycloakStartupCommand`</Table.Td>
+      <Table.Td>
+        The command to start the Keycloak server. In dev mode (or Demostack), this is `start-dev`.
+        In production, if you have HTTPS configured for Keycloak, this should be set to `start`.
+      </Table.Td>
+    </Table.Tr>
+
+    <Table.Tr>
+      <Table.Td>`KeycloakFullURL`</Table.Td>
+      <Table.Td>
+        The full hostname URL of the Keycloak server, for example,`http://localhost:8085` or `https://my-keycloak.net`.
+        This is only used if you are using a local/internal Keycloak service defined in the `ServiceStack/compose-manifests/shared/auth.yml` file.
+      </Table.Td>
+    </Table.Tr>
+
+  </tbody>
+</Table>
+
+{/* TODO: TRE UI - NextJS application configuration. so far, it needs: BETTER_AUTH_SECRET and BETTER_AUTH_URL */}
