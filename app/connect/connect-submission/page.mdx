@@ -1,9 +1,12 @@
 ---
 readingTime: PT15M
+audiences: tre-operator
 ---
 
 import { Steps, Callout, Table } from "nextra/components";
+import { DocMetadata } from "@/components/doc-metadata/DocMetadata";
 
+<DocMetadata />
 
 # Connect a TRE Agent to a Submission Layer
 This guide describes how to connect a TRE Agent to the Submission Layer using the **TRE onboarding configuration**. During onboarding, the Submission Layer automatically provisions a dedicated Keycloak service account for the TRE and generates a configuration file that the TRE Agent can import.

@@ -14,7 +14,7 @@ await loadTemporal();
 export function TimeToRead({ metadata }: { metadata?: FrontMatter }) {
     if (metadata?.readingTime == null) return null;
 
-    return (<dl className="flex w-full p-2 gap-2 border-solid border-white border-thick">
+    return (<dl className="flex w-full p-2 gap-2 items-center">
         <dt className="">
             <div className="flex gap-2 font-semibold">
                 <LucideClock /> Time to read
