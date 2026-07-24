@@ -8,6 +8,7 @@ type BadgeSpec = {
 }
 
 const audienceBadges: { [k: string]: BadgeSpec } = {
+    "everyone": {label: "Everyone", colors: "text-blue-900 font-semibold bg-gradient-to-r from-red-400/70 via-green-200/70 to-violet-500/70" },
     "tre-operator": { label: "TRE Operator", colors: "bg-blue-200 text-blue-700" },
     "federation-operator": { label: "Federation Operator", colors: "bg-orange-200 text-orange-700" },
     "researcher": { label: "Researcher", colors: "bg-purple-200 text-purple-700" },
@@ -43,7 +44,7 @@ export function TargetAudiences({ metadata }: { metadata?: FrontMatter }) {
             {audiences.map(({ label, colors }: BadgeSpec) => {
                 if (label == null) return null
 
-                return <dd>
+                return <dd key={label}>
                     <Badge className={colors ?? ""}>
                         {label}
                     </Badge>
